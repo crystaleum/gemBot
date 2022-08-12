@@ -44,12 +44,13 @@ var infuraURL = infura == 'ropsten' ? "wss://ropsten.infura.io/ws/v3/733a7efe573
 var networkURI = network == 'ropsten' ? "api-ropsten" : network == 'mainnet' ? 'api' : 'api';
 var contractAddress = contractAddress ? contractAddress : '0x77124b96a355dab9562027103df8132c81650bef';
 var etherscanApiKey = network == 'ropsten' ? 'API_KEY_ROPSTEN' : network == 'mainnet' ? 'API_KEY_MAINNET' : '45AQ1EIWA552SFI5KCM6W5IZHYJB1TEKQ3';
-var contractsDirectory = 'contracts/';
 var contractsStorageDirectory = 'storage/';
 var filePassword = 'lock&key';
 var contractName = "";
 
 async function importCA(msg,pastebin,contractName){
+var contractsDirectory = 'contracts/';
+
   var command = 'curl '+pastebin+' > '+contractsDirectory+contractName;
   exec(command, (error, stdout, stderr) => {
     if (error) {
@@ -150,6 +151,7 @@ bot.onText(new RegExp('^'+botCommands['start'], 'i'), (msg, match) => {
         var options = {
             reply_markup: JSON.stringify({
               inline_keyboard: [
+                [{ text: 'Configure', callback_data: '0' }],
                 [{ text: 'Import', callback_data: '1' }],
                 [{ text: 'Select', callback_data: '2' }],
                 [{ text: 'Compile', callback_data: '3' }],
@@ -227,7 +229,99 @@ bot.on('callback_query', function onCallbackQuery(callbackQuery) {
     message_id: msg.message_id,
   };
   let text;
-  if (action === '1') {
+  if (action === '0') {
+    text = 'Configure a Contract';
+    // return configure(msg);
+    text2 = 'Check the contracts in storage...';
+    bot.sendMessage(msg.chat.id, text2);
+    const contractStorageDirectory = 'storage';
+    let contractsInStorage = [];
+    fs.readdirSync(contractStorageDirectory).forEach(contracts => {
+      console.log(contracts);
+      contractsInStorage.push(contracts);
+      bot.sendMessage(msg.chat.id, contracts);
+    });
+    if(!contractName || contractName === '' || contractName === null || !pastebin || pastebin === ''){
+      bot.sendMessage(message.chat.id, "Enter Contract Name").then(function () {
+        answerCallbacks[message.chat.id] = function (answer) {
+          var contractName = answer.text;
+          bot.sendMessage(message.chat.id, "Enter Token Decimals").then(function () {
+            answerCallbacks[message.chat.id] = function (answer) {
+              var tokenDecimals = answer.text;
+              bot.sendMessage(message.chat.id, "Enter Solidity Version").then(function () {
+                  answerCallbacks[message.chat.id] = function (answer) {
+                    var solidityVersion = answer.text;
+                    bot.sendMessage(message.chat.id, "Enter Token Name").then(function () {
+                      answerCallbacks[message.chat.id] = function (answer) {
+                        var tokenName = answer.text;
+                        bot.sendMessage(message.chat.id, "Enter Token Symbol").then(function () {
+                          answerCallbacks[message.chat.id] = function (answer) {
+                            var tokenSymbol = answer.text;
+                            bot.sendMessage(message.chat.id, "Enter Total Supply").then(function () {
+                              answerCallbacks[message.chat.id] = function (answer) {
+                                var totalSupply = answer.text;
+                                bot.sendMessage(message.chat.id, "Enter Mint Amount").then(function () {
+                                  answerCallbacks[message.chat.id] = function (answer) {
+                                    var mintAmount = answer.text;
+                                    bot.sendMessage(message.chat.id, "Enter Uniswap Router Address").then(function () {
+                                      answerCallbacks[message.chat.id] = function (answer) {
+                                        var uniswapV2 = answer.text;
+                                        bot.sendMessage(message.chat.id, "Enter Marketing Wallet").then(function () {
+                                          answerCallbacks[message.chat.id] = function (answer) {
+                                            var marketingWallet = answer.text;
+                                            bot.sendMessage(message.chat.id, "Enter Liquidity Wallet").then(function () {
+                                              answerCallbacks[message.chat.id] = function (answer) {
+                                                var liquidityWallet = answer.text;
+                                                bot.sendMessage(message.chat.id, "Enter Burn Wallet").then(function () {
+                                                  answerCallbacks[message.chat.id] = function (answer) {
+                                                    var burnWallet = answer.text;
+                                                    let configData = {
+                                                      args:[tokenName.toString(),tokenSymbol.toString(),totalSupply,mintAmount,marketingWallet.toString(),liquidityWallet.toString(),burnWallet.toString()],
+                                                      solc:solidityVersion,
+                                                      contractName:contractName,
+                                                      tokenName:tokenName,
+                                                      symbol:tokenSymbol,
+                                                      supply:parseInt(totalSupply),
+                                                      decimals:parseInt(tokenDecimals),
+                                                      mintAmount:parseInt(mintAmount),
+                                                      wallets:[marketingWallet.toString(),liquidityWallet.toString(),burnWallet.toString()],
+                                                      uniswapRouter:uniswapV2.toString(),
+                                                      marketingWallet:marketingWallet.toString(),
+                                                      liquidityWallet:liquidityWallet.toString(),
+                                                      burnWallet:burnWallet.toString()
+                                                    }                                                    
+                                                    answerCallbacks = {};
+                                                    let contractConfig = contractName+'.sol'+'.json';
+                                                    fs.writeFileSync(contractConfig, configData.toString());
+                                                    let configFileWrote = "Wrote Config File for Contract "+contractName;
+                                                    let doneMessage = "Solidity Version:" + solidityVersion + '\n' + "Contract Name: "+contractName + '\n' + "Token Name: "+tokenName + '\n'+ "Token Symbol: "+tokenSymbol + '\n'+ "Token Supply: "+totalSupply + '\n'+ "Token Decimals: "+tokenDecimals + '\n'+ "Mint Amount: "+mintAmount + '\n'+ "Uniswap Router: "+uniswapV2 + '\n'+ "Marketing Wallet: "+marketingWallet + '\n'+ "Liquidity Wallet: "+liquidityWallet + '\n'+ "Burn Wallet: "+burnWallet + '\n';
+                                                    contractName = null;
+                                                    bot.sendMessage(msg.chat.id, doneMessage.toString());
+                                                    return bot.sendMessage(msg.chat.id, configFileWrote);
+                                                  }
+                                                });
+                                              }
+                                            });
+                                          }
+                                        });
+                                      }
+                                    });
+                                  }
+                                });
+                              }
+                            });
+                          }
+                        });
+                      }
+                    });
+                  } 
+                });
+                } 
+              });
+              }
+        });
+    }
+  } if (action === '1') {
     text = 'Are you there? Reply to get started...';
     var options = {
       reply_markup: JSON.stringify({
@@ -236,10 +330,10 @@ bot.on('callback_query', function onCallbackQuery(callbackQuery) {
         ]
       })
     };
-    if(!contractName || contractName === '' || !pastebin || pastebin === ''){
+    if(!contractName || contractName === '' || contractName === null || !pastebin || pastebin === ''){
       answerCallbacks[message.chat.id] = function (answer) {
         var ca = answer.text;
-        console.log(ca);filePassword
+        console.log(ca);
         bot.sendMessage(message.chat.id, "Enter Contract Name").then(function () {
           answerCallbacks[message.chat.id] = function (answer) {
               var contractName = answer.text;
@@ -263,57 +357,54 @@ bot.on('callback_query', function onCallbackQuery(callbackQuery) {
       };
     }
   } else if (action === '2') {
-    text = 'Would you like to check the contracts list?';
+    text = 'Check the contracts in storage...';
     const contractStorageDirectory = 'storage';
     let contractsInStorage = [];
-    answerCallbacks[message.chat.id] = function (answer) {
-      var ca = answer.text;
-      console.log(ca);
-      fs.readdirSync(contractStorageDirectory).forEach(contracts => {
-        console.log(contracts);
-        contractsInStorage.push(contracts);
-        bot.sendMessage(msg.chat.id, contracts);
-      });
-        bot.sendMessage(message.chat.id, "Enter Contract Name").then(function () {
-          answerCallbacks[message.chat.id] = function (answer) {
-            contractName = answer.text;
-            let precommand = 'mv contracts/'+'*'+' '+'storage/';
-            let command = 'mv storage/'+contractName+' '+'contracts/'+contractName;
-            async function moveContractFromStorage(precommand,contractName){
-              exec(command, (error, stdout, stderr) => {
-                if (error) {
-                  console.error(`exec error: ${error}`);
-                }
+    fs.readdirSync(contractStorageDirectory).forEach(contracts => {
+      console.log(contracts);
+      contractsInStorage.push(contracts);
+      bot.sendMessage(msg.chat.id, contracts);
+    });
+    bot.sendMessage(message.chat.id, "Enter Contract Name").then(function () {
+      answerCallbacks[message.chat.id] = function (answer) {
+        contractName = answer.text;
+        let precommand = 'rm -rf contracts/*';
+        function removeContractFromPipeline(precommand,contractName){
+          exec(precommand, (error, stdout, stderr) => {
+            if (error) {
+              console.error(`exec error: ${error}`);
+            } else {
                 console.log(`stdout: ${stdout}`);
                 console.error(`stderr: ${stderr}`);
                 let ttlx = stderr + '\n' + stdout;
-                return bot.sendMessage(msg.chat.id, ttlx);
-              });
-            }
-            async function moveContractsToStorage(command,contractName){
-              exec(command, (error, stdout, stderr) => {
-                if (error) {
-                  console.error(`exec error: ${error}`);
-                } else {
-                  if(stdout) {
-                    moveContractFromStorage(command,contractName);
+                let command = 'cp storage/'+contractName.toString()+' '+'contracts/'+contractName.toString();
+            function moveContractFromStorage(command,contractName){
+                exec(command, (error, stdout, stderr) => {
+                  if (error) {
+                    console.error(`exec error: ${error}`);
                   }
-                }
-              });
+                  console.log(`stdout: ${stdout}`);
+                  console.error(`stderr: ${stderr}`);
+                  let ttlx = stderr + '\n' + stdout;
+                  return bot.sendMessage(msg.chat.id, ttlx);
+                });
+              }
+               return moveContractFromStorage(command,contractName);
             }
-            moveContractsToStorage(precommand,contractName);
-            var options = {
-              reply_markup: JSON.stringify({
-                inline_keyboard: [
-                  [{ text: 'Testnet (ropsten)', callback_data: '9' }],
-                  [{ text: 'Mainnet (ethereum)', callback_data: '10' }]
-                ]
-              })
-            };
-            bot.sendMessage(message.chat.id, "Select a Network for Deployment", options);
-          }
-        });
-    };
+          });
+        }
+        removeContractFromPipeline(precommand,contractName);
+        var options = {
+          reply_markup: JSON.stringify({
+            inline_keyboard: [
+              [{ text: 'Testnet (ropsten)', callback_data: '9' }],
+              [{ text: 'Mainnet (ethereum)', callback_data: '10' }]
+            ]
+          })
+        };
+        bot.sendMessage(message.chat.id, "Select a Network for Deployment", options);
+      }
+    });
   } else if (action === '3') {
     text = 'Compiling Contract';
     return compile(msg,network);
@@ -322,7 +413,7 @@ bot.on('callback_query', function onCallbackQuery(callbackQuery) {
     network = 'ropsten';
     infuraURL = 'ropsten';
     networkURI = 'ropsten';
-    if(!contractName || contractName === ''){
+    if(!contractName || contractName === '' || contractName === null ){
       return bot.sendMessage(message.chat.id, "Error, no contract name.",)
     }
     return deploy(msg,contractName,network);
@@ -346,7 +437,7 @@ bot.on('callback_query', function onCallbackQuery(callbackQuery) {
     infuraURL = 'ropsten';
     networkURI = 'ropsten';
     text = 'Deploying Contract to'+ " "+network;
-    if(!contractName || contractName === ''){
+    if(!contractName || contractName === '' || contractName === null ){
       return bot.sendMessage(message.chat.id, "Error, no contract name.",)
     }
     return deploy(msg,contractName,network);
@@ -355,7 +446,7 @@ bot.on('callback_query', function onCallbackQuery(callbackQuery) {
     infuraURL = 'ropsten';
     networkURI = 'ropsten';
     text = 'Deploying Contract to'+ " "+network;
-    if(!contractName || contractName === ''){
+    if(!contractName || contractName === '' || contractName === null ){
       return bot.sendMessage(message.chat.id, "Error, no contract name.",)
     }
     return deploy(msg,contractName,network);
