@@ -1,0 +1,35 @@
+{
+  "//1": "Telegram Deployer Bot",
+  "//2": "https://crystaleum.org",
+  "//3": "Beta",
+  "type": "commonjs",
+  "name": "interchained_tgbot",
+  "version": "0.1.1",
+  "description": "This is a deployer with truffle, I coded it into a bot for telegram",
+  "scripts": {
+    "start": "npm i && node init.js"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2",
+    "@truffle/hdwallet-provider": "^1.7.0",
+    "connect-timeout": "^1.9.0",
+    "dateformat": "^3.0.3",
+    "express": "^4.16.3",
+    "hardhat": "^2.8.3",
+    "node-fetch": "^3.2.10",
+    "node-telegram-bot-api": "^0.30.0",
+    "solidity-coverage": "^0.7.18",
+    "time-ago": "^0.2.1",
+    "truffle": "5.5.2",
+    "web3": "^1.7.5"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "deployer",
+    "smart contracts",
+    "solidity",
+    "interchained",
+    "express"
+  ]
+}
