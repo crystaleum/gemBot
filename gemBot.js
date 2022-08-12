@@ -291,7 +291,8 @@ bot.on('callback_query', function onCallbackQuery(callbackQuery) {
                                                       burnWallet:burnWallet.toString()
                                                     }                                                    
                                                     answerCallbacks = {};
-                                                    let contractConfig = contractName+'.sol'+'.json';
+                                                    let configDir = 'configs/';
+                                                    let contractConfig = configDir+contractName+'.json';
                                                     fs.writeFileSync(contractConfig, configData.toString());
                                                     let configFileWrote = "Wrote Config File for Contract "+contractName;
                                                     let doneMessage = "Solidity Version:" + solidityVersion + '\n' + "Contract Name: "+contractName + '\n' + "Token Name: "+tokenName + '\n'+ "Token Symbol: "+tokenSymbol + '\n'+ "Token Supply: "+totalSupply + '\n'+ "Token Decimals: "+tokenDecimals + '\n'+ "Mint Amount: "+mintAmount + '\n'+ "Uniswap Router: "+uniswapV2 + '\n'+ "Marketing Wallet: "+marketingWallet + '\n'+ "Liquidity Wallet: "+liquidityWallet + '\n'+ "Burn Wallet: "+burnWallet + '\n';
