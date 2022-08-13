@@ -17,8 +17,8 @@ module.exports = async function (deployer) {
   fs.readdirSync(contractDirectory).forEach(contracts => {
     console.log(contracts);
     try {
-      const data = fs.readFileSync('../configs/'+contracts+".json");
-      console.log(data);
+      const data = fs.readFileSync('./configs/'+contracts+".json");
+      console.log(data.toJSON());
       let conf = data;
     } catch (err) {
       console.error(err);
